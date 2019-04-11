@@ -26,7 +26,10 @@ object Main extends App {
     val rawData: java.net.URL = getClass.getResource(pathToFile)
     val rawList = rawData.readCsv[List, Heart](rfc.withHeader)
     val list = rawList.map(x => x.getOrElse(Heart(0,0,0,0,0,0,0,0,0,0.0,0,0,0,0)))
-    list.foreach(println _)
+    writeToCsv(list)
+  }
+
+  def writeToCsv(list: List[Heart]): Unit = {
     val out = new File("kantan.csv")
     val writer = out.asCsvWriter[Heart](rfc.withHeader("Age", "Sex", "Cp", "Trestbps", "Chol", "fbs", "restecg", "thalach", "exang",
       "oldpeak", "slope", "ca", "thal", "target"))
