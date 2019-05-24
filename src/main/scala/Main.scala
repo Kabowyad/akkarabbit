@@ -10,23 +10,24 @@ case class Heart(age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int
 
 
 object Main extends App {
-  implicit val heartDecoder: RowDecoder[Heart] = RowDecoder.ordered {
-    (age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
-     restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
-     ca: Int, thal: Int, target: Int) =>
-
-      new Heart(age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
-        restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
-        ca: Int, thal: Int, target: Int)
-  }
-  val pathToFile = "/titanic.csv"
   override def main(args: Array[String]): Unit = {
     val fieldName = args(0)
     val count = args(1)
+    val pathToFile = "/titanic.csv"
     processCsv(pathToFile, fieldName, count.toInt)
   }
 
   def processCsv(pathToFile: String, fieldName: String, count: Int) = {
+    implicit val heartDecoder: RowDecoder[Heart] = RowDecoder.ordered {
+      (age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
+       restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
+       ca: Int, thal: Int, target: Int) =>
+
+        new Heart(age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
+          restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
+          ca: Int, thal: Int, target: Int)
+    }
+
     var rawData: java.net.URL = getClass.getResource(pathToFile)
     var rawList = rawData.readCsv[List, Heart](rfc.withHeader)
     var list = rawList.map(x => x.getOrElse(Heart(0,0,0,0,0,0,0,0,0,0.0,0,0,0,0)))
@@ -40,7 +41,16 @@ object Main extends App {
   }
 
   def writeToCsv(list: List[Heart]): Unit = {
-    val out = new File("kantan.csv")
+    implicit val heartDecoder: RowDecoder[Heart] = RowDecoder.ordered {
+      (age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
+       restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
+       ca: Int, thal: Int, target: Int) =>
+
+        new Heart(age: Int, sex: Int, cp: Int, trestbps: Int, chol: Int, fbs: Int,
+          restecg: Int, thalach: Int, exang: Int, oldpeak: Double, slope: Int,
+          ca: Int, thal: Int, target: Int)
+    }
+    val out = new File("result.csv")
     val writer = out.asCsvWriter[Heart](rfc.withHeader("Age", "Sex", "Cp"))
     writer.write(list).close()
     println(out.toPath.toAbsolutePath)
